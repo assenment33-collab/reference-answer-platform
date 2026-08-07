@@ -10,16 +10,16 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-  <nav class="nav"><div class="nav-inner">
+  <nav class="nav" id="topNav"><div class="nav-inner">
     <a class="brand" href="./">参考答案阅览室<small>深度阅读社区</small></a>
     <div class="nav-links">
       <a href="./browse.html">浏览</a>
       <a href="./co-read.html">共读</a>
-      <a href="./studio.html">编辑台</a>
+      <button class="link-btn" onclick="toggleZen()" title="0 干扰阅读模式">关灯阅读</button>
     </div>
   </div></nav>
 
-  <main class="read-container">
+  <main class="read-container" id="readMain">
     <div class="article" id="article"><div class="empty">加载中…</div></div>
 
     <section class="notes-box">
@@ -42,6 +42,29 @@
       const { item } = await API.get(id);
       if (!item) { document.getElementById('article').innerHTML = '<div class="empty">未找到该内容</div>'; return; }
       document.title = item.title + ' · 参考答案阅览室';
+
+      const hasChapters = item.chapters && item.chapters.length;
+      const chaptersHtml = hasChapters ? `
+        <nav class="chapter-nav">
+          <div class="chapter-label">章节导航</div>
+          ${item.chapters.map((c, i) => `<a href="#ch-${i}" onclick="scrollToChapter(event,'ch-${i}')">0${i+1} ${esc(c)}</a>`).join('')}
+        </nav>` : '';
+
+      const abstractHtml = item.abstract ? `
+        <div class="article-abstract">
+          <div class="abstract-label">文章摘要</div>
+          <p>${esc(item.abstract)}</p>
+        </div>` : '';
+
+      let bodyHtml = renderMarkdown(item.body);
+      // 给 h2 加锚点，用于章节导航
+      if (hasChapters) {
+        let idx = 0;
+        bodyHtml = bodyHtml.replace(/<h2[^>]*>/g, (m) => {
+          return `<h2 id="ch-${idx++}">`;
+        });
+      }
+
       document.getElementById('article').innerHTML = `
         <div class="meta">
           <span>${item.icon} ${esc(item.categoryName)}</span>
@@ -49,13 +72,32 @@
           ${item.author ? '<span>'+esc(item.author)+'</span>' : ''}
         </div>
         <h1>${esc(item.title)}</h1>
-        <div class="markdown">${renderMarkdown(item.body)}</div>
+        ${abstractHtml}
+        ${chaptersHtml}
+        <div class="markdown">${bodyHtml}</div>
         <div class="tags" style="margin-top:28px;">
           ${(item.tags||[]).map((t)=>'<span class="tag">'+esc(t)+'</span>').join('')}
         </div>`;
+
+      // 高亮金句点击复制
+      document.querySelectorAll('.markdown mark').forEach((el) => {
+        el.title = '点击复制金句';
+        el.addEventListener('click', () => {
+          const text = el.textContent;
+          navigator.clipboard.writeText(text).then(() => toast('金句已复制：' + text.slice(0, 18) + (text.length>18?'...':'')));
+        });
+      });
+
       // 载入已存笔记
       document.getElementById('note').value = Notes.get(id) || '';
     }
+    function scrollToChapter(e, anchor) {
+      e.preventDefault();
+      const el = document.getElementById(anchor);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    window.scrollToChapter = scrollToChapter;
+
     let t;
     function saveNote() {
       Notes.set(id, document.getElementById('note').value);
@@ -68,6 +110,14 @@
       clearTimeout(t);
       t = setTimeout(saveNote, 800);
     });
+
+    function toggleZen() {
+      document.body.classList.toggle('zen-mode');
+      const btn = document.querySelector('button[onclick="toggleZen()"]');
+      if (btn) btn.textContent = document.body.classList.contains('zen-mode') ? '开灯阅读' : '关灯阅读';
+    }
+    window.toggleZen = toggleZen;
+
     init();
   </script>
 </body>

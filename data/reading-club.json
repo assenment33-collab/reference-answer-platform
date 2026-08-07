@@ -2,15 +2,16 @@
   "intro": "共读，是让深度阅读变成仪式。每周一个主题、一个问题、一份精选阅读清单，与同路人一起把「读过」变成「想通」。",
   "topics": [
     {
-      "id": "decide-better",
-      "title": "如何做出更好的决定",
+      "id": "intimacy",
+      "title": "如何维持长久稳定的亲密关系",
       "period": "第 32 周（08/10–08/16）",
-      "lead": "我们每天做上百个决定，却很少认真想过自己是怎么决定的。这周，我们一起拆解「决策」这件被低估的事。",
+      "lead": "热恋会上头，但长久关系靠的不是多巴胺。这周我们一起读亲密关系——从大脑化学反应，到价值观、沟通与共同体验。",
       "questions": [
-        "最近一次让你后悔的决定，问题出在信息、情绪，还是框架？",
-        "如果只能用一个原则指导重要决定，你会选哪一条？"
+        "你最容易在关系的哪个阶段「上头」？是追求期、热恋期，还是平淡期？",
+        "你和伴侣在金钱、家庭、职业、生活方式上，需要妥协的地方多吗？",
+        "如果每天只对伴侣说一句温暖的话，你会说什么？"
       ],
-      "reads": ["topics/how-to-decide", "people/charlie-munger", "daily/2026-07-29-naval", "weekly/vol-63-longtermism"]
+      "reads": ["topics/long-lasting-intimacy", "daily/2026-08-07-relationship-menu", "books/nonviolent-communication", "people/carl-jung"]
     },
     {
       "id": "deep-focus",

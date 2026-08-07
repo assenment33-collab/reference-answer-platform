@@ -28,6 +28,7 @@ const ICON = {
 const INTEREST_TAXONOMY = [
   { key: '思维·决策', icon: '🧠', synonyms: ['决策', '思维', '认知', '逻辑', '理性', '判断', '多元思维', '长期主义', '复利'] },
   { key: '心理·自我', icon: '🌱', synonyms: ['心理', '自我', '个体', '性格', '幸福', '情绪', '心流', '荣格'] },
+  { key: '关系·亲密', icon: '❤️', synonyms: ['关系', '亲密', '沟通', '情绪', '伴侣', '婚姻', '家庭', '非暴力沟通'] },
   { key: '商业·财富', icon: '💡', synonyms: ['财富', '杠杆', '自由', '投资', '商业', '增长', 'AI', '纳瓦尔', '芒格'] },
   { key: '阅读·写作', icon: '✍️', synonyms: ['阅读', '写作', '表达', '书', '笔记', '方法', '沟通', '关系'] },
   { key: '专注·效率', icon: '🎯', synonyms: ['专注', '效率', '深度工作', '心流', '纽波特'] },
@@ -71,6 +72,9 @@ Object.keys(CATS).forEach((cat) => {
       date: meta.date || '',
       tags: (meta.tags || '').split(',').map((s) => s.trim()).filter(Boolean),
       summary: meta.summary || body.slice(0, 120),
+      abstract: meta.abstract || meta.summary || body.slice(0, 120),
+      chapters: (meta.chapters || '').split(',').map((s) => s.trim()).filter(Boolean),
+      menu: meta.menu || '',
       body,
     });
   });

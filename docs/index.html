@@ -15,20 +15,33 @@
     <div class="nav-links">
       <a href="./browse.html">浏览</a>
       <a href="./co-read.html">共读</a>
+      <a href="./sources.html">信源</a>
     </div>
   </div></nav>
 
   <header class="hero">
-    <p class="eyebrow">反碎片化阅读</p>
+    <p class="eyebrow">反碎片化阅读 · 0 干扰空间</p>
     <h1 class="font-serif-sc">在喧嚣里，留一处深度</h1>
-    <p>每天一篇深度长文，每周一期泛读周刊，每月一期主题月刊。有益的、一手的、经典的——和同路人一起，搭建可复利的知识体系。</p>
+    <p>每天一份信息食谱，每周一期参考周刊，每月一期主题月刊。没有算法推荐和信息流打断，只保留阅读、思考和记录。</p>
     <form class="search-bar" onsubmit="return goSearch(event)">
-      <input id="q" type="text" placeholder="搜索所有品类：荣格、决策、深度工作……" autocomplete="off">
+      <input id="q" type="text" placeholder="搜索所有品类：亲密关系、深度工作、纳瓦尔……" autocomplete="off">
       <button type="submit">搜索</button>
     </form>
   </header>
 
   <main class="container">
+    <!-- 今日信息食谱 -->
+    <section id="todayMenu">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">今日信息食谱</h2>
+          <p class="section-sub">从文章、影像、音乐和经典文本里，替你搭配一天的高质量输入</p>
+        </div>
+        <a class="link-btn" href="./browse.html?cat=daily">查看全部 →</a>
+      </div>
+      <div class="menu-grid" id="menuGrid"><div class="empty">加载中…</div></div>
+    </section>
+
     <!-- 兴趣选择 + 个性化推荐 -->
     <div class="interest-bar">
       <div class="interest-head">
@@ -57,7 +70,7 @@
 
   <footer>
     参考答案阅览室 · 深度阅读社区 · 由 Agent 策展驱动
-    <span class="foot-links"><a href="./studio.html">运营后台</a></span>
+    <span class="foot-links"><a href="./sources.html">精选信源</a> · <a href="./studio.html">运营后台</a></span>
   </footer>
 
   <script src="./js/app.js"></script>
@@ -101,8 +114,6 @@
 
     async function renderRecommend() {
       const interests = await Personalization.getInterests();
-      const m = await API.meta();
-      // 取全部内容用于排序
       const all = await API.list({ limit: 200 });
       const recs = await Personalization.recommend(all.items, 6);
       document.getElementById('recommendHint').textContent = interests.length
@@ -138,6 +149,49 @@
         : '<div class="empty">暂无内容</div>';
     }
 
+    async function renderTodayMenu() {
+      const all = await API.list({ category: 'daily', limit: 200 });
+      const today = new Date().toISOString().slice(0, 10);
+      let item = all.items.find((i) => (i.date || '').startsWith(today));
+      if (!item && all.items.length) item = all.items[0];
+      if (!item) { document.getElementById('menuGrid').innerHTML = '<div class="empty">暂无今日食谱</div>'; return; }
+
+      // 按早中晚拆分 body
+      const sections = [];
+      const body = item.body || '';
+      const segMap = {
+        '早上': { icon: '🌅', label: '早上' },
+        '中午': { icon: '☀️', label: '中午' },
+        '晚上': { icon: '🌙', label: '晚上' }
+      };
+      Object.keys(segMap).forEach((key) => {
+        const re = new RegExp(`##\\s*${key}[^\\n]*\\n([\\s\\S]*?)(?=##\\s*(早上|中午|晚上|延伸阅读)|$)`, 'g');
+        let m;
+        while ((m = re.exec(body)) !== null) {
+          const html = renderMarkdown(m[1].trim());
+          sections.push({ ...segMap[key], html });
+        }
+      });
+
+      if (!sections.length) {
+        document.getElementById('menuGrid').innerHTML = `
+          <a class="menu-card full" href="./read.html?id=${encodeURIComponent(item.id)}">
+            <div class="menu-ico">📖</div>
+            <div class="menu-title">${esc(item.title)}</div>
+            <div class="menu-desc">${esc(item.summary)}</div>
+          </a>`;
+        return;
+      }
+
+      document.getElementById('menuGrid').innerHTML = sections.map((s) => `
+        <div class="menu-card">
+          <div class="menu-ico">${s.icon}</div>
+          <div class="menu-title">${esc(s.label)} · ${esc(item.title)}</div>
+          <div class="menu-desc">${s.html}</div>
+          <a class="menu-link" href="./read.html?id=${encodeURIComponent(item.id)}">展开全文 →</a>
+        </div>`).join('');
+    }
+
     async function init() {
       const meta = await API.meta();
       document.getElementById('cats').innerHTML = meta.categories.map((c) => `
@@ -146,6 +200,7 @@
           <div class="name">${esc(c.name)}</div>
           <div class="count">${c.count} 篇</div>
         </a>`).join('');
+      await renderTodayMenu();
       await renderChips();
       await renderRecommend();
       await renderLatest();

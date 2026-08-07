@@ -168,3 +168,85 @@ footer { border-top: 1px solid var(--line); padding: 28px 24px; text-align: cent
 .foot-links { margin-left: 14px; }
 .foot-links a { color: var(--muted); text-decoration: none; border-left: 1px solid var(--line); padding-left: 14px; }
 .foot-links a:hover { color: var(--accent); }
+
+/* 首页：今日信息食谱 */
+.section-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 16px 0 48px; }
+.menu-card {
+  background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 22px;
+  display: flex; flex-direction: column;
+}
+.menu-card.full { grid-column: 1 / -1; }
+.menu-ico { font-size: 26px; }
+.menu-title { font-family: 'Noto Serif SC', serif; font-size: 17px; font-weight: 600; margin-top: 8px; }
+.menu-desc { color: var(--muted); font-size: 14px; line-height: 1.7; margin-top: 8px; flex: 1; }
+.menu-desc p { margin: 6px 0; }
+.menu-desc strong { color: var(--text); }
+.menu-link { font-size: 13px; color: var(--text); text-decoration: none; margin-top: 12px; font-weight: 500; }
+.menu-link:hover { text-decoration: underline; }
+
+/* 阅读页：摘要 + 章节导航 */
+.article-abstract {
+  background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px;
+  margin: 18px 0 26px; color: #444; font-size: 15px; line-height: 1.8;
+}
+.abstract-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .15em; margin-bottom: 8px; }
+.chapter-nav {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  margin: 0 0 26px; padding: 14px 16px; background: #fff; border: 1px solid var(--line); border-radius: 999px;
+}
+.chapter-label { font-size: 12px; color: var(--muted); margin-right: 6px; }
+.chapter-nav a {
+  color: var(--text); text-decoration: none; font-size: 13px; background: #f5f5f4;
+  padding: 4px 12px; border-radius: 999px;
+}
+.chapter-nav a:hover { background: #e7e5e4; }
+
+/* 0 干扰阅读模式（关灯） */
+body.zen-mode {
+  --bg: #1c1917;
+  --text: #f5f5f4;
+  --muted: #a8a29e;
+  --line: #44403c;
+  --accent: #f5f5f4;
+}
+body.zen-mode .nav { background: rgba(28,25,23,0.9); border-bottom-color: #44403c; }
+body.zen-mode .article h1,
+body.zen-mode .markdown h2,
+body.zen-mode .markdown h3 { color: #f5f5f4; }
+body.zen-mode .markdown { color: #d6d3d1; }
+body.zen-mode .notes-box,
+body.zen-mode .article-abstract,
+body.zen-mode .chapter-nav { background: #292524; border-color: #44403c; }
+body.zen-mode .notes-box textarea,
+body.zen-mode #clubNote { background: #1c1917; color: #f5f5f4; border-color: #44403c; }
+body.zen-mode .markdown blockquote { background: #292524; border-left-color: #57534e; color: #d6d3d1; }
+body.zen-mode .markdown mark { background: rgba(250,204,21,0.5); color: #1c1917; }
+body.zen-mode footer { border-top-color: #44403c; }
+
+/* 高亮金句可点击 */
+.markdown mark { cursor: pointer; transition: background .15s ease; }
+.markdown mark:hover { background: rgba(250,204,21,0.55); }
+
+/* 精选信源页 */
+.sources-intro { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin: 32px 0 48px; }
+.source-stat { text-align: center; padding: 22px; background: #fff; border: 1px solid var(--line); border-radius: 16px; }
+.source-stat .num { font-family: 'Noto Serif SC', serif; font-size: 36px; font-weight: 700; }
+.source-stat .label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.principle-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 16px 0 48px; }
+.principle-card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
+.principle-ico { font-size: 28px; }
+.principle-card h3 { font-family: 'Noto Serif SC', serif; font-size: 18px; margin: 10px 0 6px; }
+.principle-card p { color: var(--muted); font-size: 14px; line-height: 1.7; margin: 0; }
+.source-list { margin: 16px 0 48px; }
+.source-item { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; margin-bottom: 14px; }
+.source-name { font-family: 'Noto Serif SC', serif; font-size: 18px; font-weight: 600; }
+.source-desc { color: var(--muted); font-size: 14px; line-height: 1.7; margin-top: 6px; }
+.source-tags { margin-top: 10px; }
+.cta-box { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 28px; text-align: center; margin-bottom: 40px; }
+.cta-box h3 { font-family: 'Noto Serif SC', serif; font-size: 20px; margin: 0 0 8px; }
+.cta-box p { color: var(--muted); font-size: 14px; line-height: 1.7; margin: 0 0 16px; }
+
+/* 导航按钮（关灯阅读） */
+.nav-links button.link-btn { margin-left: 16px; text-decoration: none; font-size: 14px; color: var(--muted); }
+.nav-links button.link-btn:hover { color: var(--text); }
