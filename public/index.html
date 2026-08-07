@@ -15,7 +15,6 @@
     <div class="nav-links">
       <a href="./browse.html">浏览</a>
       <a href="./co-read.html">共读</a>
-      <a href="./studio.html">编辑台</a>
     </div>
   </div></nav>
 
@@ -43,6 +42,10 @@
     <p class="section-sub" id="recommendHint">最新上架的内容</p>
     <div class="list" id="recommend"><div class="empty">加载中…</div></div>
 
+    <h2 class="section-title">最新上架</h2>
+    <p class="section-sub">由运营者通过 Agent 持续采编更新 · 越新的越靠前</p>
+    <div class="list" id="latest"><div class="empty">加载中…</div></div>
+
     <h2 class="section-title">全部品类</h2>
     <p class="section-sub">点击进入，浏览与搜索已有内容</p>
     <div class="cat-grid" id="cats"><div class="empty">加载中…</div></div>
@@ -52,7 +55,10 @@
     <div id="clubWeek"><div class="empty">加载中…</div></div>
   </main>
 
-  <footer>参考答案阅览室 · 深度阅读社区 · 由 Agent 策展驱动</footer>
+  <footer>
+    参考答案阅览室 · 深度阅读社区 · 由 Agent 策展驱动
+    <span class="foot-links"><a href="./studio.html">运营后台</a></span>
+  </footer>
 
   <script src="./js/app.js"></script>
   <script>
@@ -121,6 +127,17 @@
         </a>`;
     }
 
+    async function renderLatest() {
+      const all = await API.list({ limit: 200 });
+      const sorted = all.items
+        .slice()
+        .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+        .slice(0, 8);
+      document.getElementById('latest').innerHTML = sorted.length
+        ? sorted.map(itemCard).join('')
+        : '<div class="empty">暂无内容</div>';
+    }
+
     async function init() {
       const meta = await API.meta();
       document.getElementById('cats').innerHTML = meta.categories.map((c) => `
@@ -131,6 +148,7 @@
         </a>`).join('');
       await renderChips();
       await renderRecommend();
+      await renderLatest();
       await renderClubWeek();
     }
     init();

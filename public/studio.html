@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>编辑台 · 参考答案阅览室</title>
+  <title>运营后台 · 参考答案阅览室</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/style.css">
@@ -15,13 +15,17 @@
     <div class="nav-links">
       <a href="./browse.html">浏览</a>
       <a href="./co-read.html">共读</a>
-      <a href="./studio.html">编辑台</a>
+      <a href="./studio.html">运营后台</a>
     </div>
   </div></nav>
 
   <main class="container">
-    <h1 class="section-title" style="margin-top:32px;">编辑台 · AI 初稿 + 编辑把关</h1>
-    <p class="section-sub">由「参考答案阅览室」Skill 驱动的 agent 策展工作流：生成初稿 → 你把关、补一手来源 → 发布入库</p>
+    <div class="operator-banner">
+      🔒 运营者专属后台 · 读者请<a href="./">返回首页</a>。本页由「参考答案阅览室」Skill 驱动的 Agent 采编引擎支撑：生成初稿 → 你把关、补一手来源 → 发布入库。生成与发布需在本地运行 <code>node server.js</code>（静态站点无后端）。
+    </div>
+
+    <h1 class="section-title" style="margin-top:32px;">运营后台 · Agent 采编引擎</h1>
+    <p class="section-sub">这是产品的「内容中台」，不是读者能看到的部分。你在这里持续把时新信息与功能模块喂进前端内容库。</p>
 
     <div class="studio-grid">
       <div>
@@ -76,7 +80,7 @@
         case 'monthly': body = '主题导语：（……）\n\n核心概念：\n- 概念A：一句解释\n- 概念B：一句解释\n\n深度文章/书单/前路人：\n- （3-5项）'; break;
         case 'topics': body = '导语：（价值锚点）\n\n1. 条目 —— 分类\n   一句话摘要：（……）\n2. 条目 —— 分类\n   一句话摘要：（……）'; break;
         case 'people': body = '身份标签：（1-2个）\n\n简介：（2-3句）\n\n核心观点：\n- （观点1）\n- （观点2）\n\n值得思考的问题：\n- （问题1）\n\n代表作/语录：\n- （……）'; break;
-        case 'books': body = '一句话推荐：（……）\n\n适合阅读时机：（……）'; break;
+        case 'books': body = '==一句话定位：本书不可替代的价值。==\n\n## 它回应的真问题\n（读者在什么困境下需要它）\n\n## 核心框架\n**1. ...** （核心论点/模型，逐条展开）\n**2. ...**\n**3. ...**\n\n> ==金句或关键判断（1-3 处高亮）==\n\n## 金句\n- （原文摘录）\n\n## 适合谁读\n- （人群）\n\n## 延伸阅读\n- 《相关书/文章》（品类）'; break;
         case 'calendar': body = '名言 —— 出处\n\n宜：（……）　忌：（……）\n\n历史上的今天：（真实史实）'; break;
         default: body = '（在此撰写内容正文）';
       }
