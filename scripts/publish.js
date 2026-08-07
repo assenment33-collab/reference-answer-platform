@@ -2,7 +2,7 @@
 'use strict';
 
 /**
- * 慢读 Slowread · 运营者发布 CLI
+ * 杰希星球 · 运营者发布 CLI
  *
  * 用法：
  *   # 让 Agent 采编一篇新内容并发布（需 LLM_API_KEY 走真实生成；否则生成富骨架）

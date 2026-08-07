@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * 慢读 Slowread · 在线阅读平台
+ * 杰希星球 · 在线阅读平台
  * 零依赖 Node http 服务：内容检索 / 全局搜索 / agent 策展接口 / 静态站点
  */
 
@@ -280,5 +280,5 @@ const server = http.createServer(async (req, res) => {
 
 buildIndex();
 server.listen(PORT, () => {
-  console.log(`慢读 Slowread · 平台已启动: http://localhost:${PORT}`);
+  console.log(`杰希星球 · 平台已启动: http://localhost:${PORT}`);
 });

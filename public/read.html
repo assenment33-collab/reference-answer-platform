@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>阅读 · 慢读 Slowread</title>
+  <title>阅读 · 杰希星球</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/style.css">
@@ -11,7 +11,7 @@
 </head>
 <body>
   <nav class="nav" id="topNav"><div class="nav-inner">
-    <a class="brand" href="./">慢读 Slowread<small>深度阅读社区</small></a>
+    <a class="brand" href="./">杰希星球<small>深度阅读社区</small></a>
     <div class="nav-links">
       <a href="./browse.html">浏览</a>
       <a href="./co-read.html">共读</a>
@@ -33,7 +33,7 @@
     </section>
   </main>
 
-  <footer>慢读 Slowread · 深度阅读社区</footer>
+  <footer>杰希星球 · 深度阅读社区</footer>
 
   <script src="./js/app.js"></script>
   <script>
@@ -41,7 +41,7 @@
     async function init() {
       const { item } = await API.get(id);
       if (!item) { document.getElementById('article').innerHTML = '<div class="empty">未找到该内容</div>'; return; }
-      document.title = item.title + ' · 慢读 Slowread';
+      document.title = item.title + ' · 杰希星球';
 
       const hasChapters = item.chapters && item.chapters.length;
       const chaptersHtml = hasChapters ? `

@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>搜索 · 慢读 Slowread</title>
+  <title>搜索 · 杰希星球</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
   <nav class="nav"><div class="nav-inner">
-    <a class="brand" href="./">慢读 Slowread<small>深度阅读社区</small></a>
+    <a class="brand" href="./">杰希星球<small>深度阅读社区</small></a>
     <div class="nav-links">
       <a href="./browse.html">浏览</a>
       <a href="./co-read.html">共读</a>
@@ -25,7 +25,7 @@
   </main>
 
   <footer>
-    慢读 Slowread · 深度阅读社区
+    杰希星球 · 深度阅读社区
     <span class="foot-links"><a href="./sources.html">精选信源</a> · <a href="./studio.html">运营后台</a></span>
   </footer>
 
@@ -33,7 +33,7 @@
   <script>
     const q = new URLSearchParams(location.search).get('q') || '';
     document.getElementById('qhint').textContent = '关键词：' + (q || '（空）');
-    document.title = '搜索：' + q + ' · 慢读 Slowread';
+    document.title = '搜索：' + q + ' · 杰希星球';
     (async () => {
       if (!q) { document.getElementById('list').innerHTML = '<div class="empty">请输入搜索词</div>'; return; }
       const { results } = await API.search(q);

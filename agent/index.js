@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * 慢读 Slowread · 运营者采编 Agent
+ * 杰希星球 · 运营者采编 Agent
  *
  * 这是产品「背后」的采编引擎，面向运营者（你），不面向读者。
  * 职责：把「一个主题」变成一篇符合「参考阅览室」调性的、结构完整、可直接发布的文章。
@@ -256,7 +256,7 @@ async function curateWithLLM({ category = 'daily', topic, brief }) {
     ? `运营者提供的研究简报（请基于这些一手信息撰写，不要编造事实）：\n${brief}\n`
     : '';
 
-  const userPrompt = `请为「慢读 Slowread」撰写一篇【${name}】正式文章，主题：「${topic}」。
+  const userPrompt = `请为「杰希星球」撰写一篇【${name}】正式文章，主题：「${topic}」。
 
 要求：
 - 克制、系统、反碎片化；优先经典与一手内容；遵循「有益的 / 一手的 / 经典的」三原则。
@@ -275,7 +275,7 @@ ${briefText}
     body: JSON.stringify({
       model,
       messages: [
-        { role: 'system', content: SKILL_PROMPT || '你是慢读 Slowread的资深编辑。' },
+        { role: 'system', content: SKILL_PROMPT || '你是杰希星球的资深编辑。' },
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.6,
