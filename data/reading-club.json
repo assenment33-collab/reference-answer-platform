@@ -1,0 +1,38 @@
+{
+  "intro": "共读，是让深度阅读变成仪式。每周一个主题、一个问题、一份精选阅读清单，与同路人一起把「读过」变成「想通」。",
+  "topics": [
+    {
+      "id": "decide-better",
+      "title": "如何做出更好的决定",
+      "period": "第 32 周（08/10–08/16）",
+      "lead": "我们每天做上百个决定，却很少认真想过自己是怎么决定的。这周，我们一起拆解「决策」这件被低估的事。",
+      "questions": [
+        "最近一次让你后悔的决定，问题出在信息、情绪，还是框架？",
+        "如果只能用一个原则指导重要决定，你会选哪一条？"
+      ],
+      "reads": ["topics/how-to-decide", "people/charlie-munger", "daily/2026-07-29-naval", "weekly/vol-63-longtermism"]
+    },
+    {
+      "id": "deep-focus",
+      "title": "在碎片时代重建专注",
+      "period": "第 33 周（08/17–08/23）",
+      "lead": "专注不是意志力，是环境设计。这周我们读「专注」——从脑科学到方法论，找回深度工作的能力。",
+      "questions": [
+        "你的一天平均被打断几次？哪段时间你最不想被碰？",
+        "如果要为「深度工作」腾出每天两小时，你会砍掉什么？"
+      ],
+      "reads": ["daily/2026-07-28-deepwork", "books/deep-work", "books/flow", "topics/how-to-learn"]
+    },
+    {
+      "id": "read-classics",
+      "title": "经典为何值得反复读",
+      "period": "第 34 周（08/24–08/30）",
+      "lead": "流行书讲一时的问题，经典讲永恒的问题。这周我们聊聊「怎么读经典」，以及哪些经典值得放进你的书架。",
+      "questions": [
+        "哪一本书你反复在读、每次都有新发现？为什么？",
+        "你如何判断一本书是「经典」还是「畅销」？"
+      ],
+      "reads": ["books/how-to-read-a-book", "books/thinking-fast-and-slow", "people/carl-jung", "monthly/knowledge-system"]
+    }
+  ]
+}

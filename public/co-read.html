@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>共读 · 参考答案阅览室</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <nav class="nav"><div class="nav-inner">
+    <a class="brand" href="./">参考答案阅览室<small>深度阅读社区</small></a>
+    <div class="nav-links">
+      <a href="./browse.html">浏览</a>
+      <a href="./co-read.html">共读</a>
+      <a href="./studio.html">编辑台</a>
+    </div>
+  </div></nav>
+
+  <main class="container">
+    <header style="text-align:center;padding:40px 0 12px;">
+      <p class="eyebrow">READING CLUB</p>
+      <h1 class="section-title" style="margin:8px 0 4px;">共读</h1>
+      <p class="section-sub" id="intro"></p>
+    </header>
+
+    <div id="list"></div>
+    <div id="detail" style="display:none;"></div>
+  </main>
+
+  <footer>参考答案阅览室 · 深度阅读社区</footer>
+
+  <script src="./js/app.js"></script>
+  <script>
+    let ITEM_MAP = {};
+    const params = new URLSearchParams(location.search);
+    const topicId = params.get('topic');
+
+    async function init() {
+      const m = await loadManifest();
+      document.getElementById('intro').textContent = (m.club && m.club.intro) || '';
+      m.items.forEach((it) => (ITEM_MAP[it.id] = it));
+      if (topicId) renderDetail(topicId);
+      else renderList(m.club ? m.club.topics : []);
+    }
+
+    function readCard(id) {
+      const it = ITEM_MAP[id];
+      if (!it) return '';
+      return `<a class="item" href="./read.html?id=${encodeURIComponent(it.id)}">
+        <div class="meta"><span class="badge">${it.icon} ${esc(it.categoryName)}</span></div>
+        <h3>${esc(it.title)}</h3>
+        <div class="summary">${esc(it.summary)}</div>
+      </a>`;
+    }
+
+    function renderList(topics) {
+      document.getElementById('detail').style.display = 'none';
+      const el = document.getElementById('list');
+      if (!topics.length) { el.innerHTML = '<div class="empty">暂无共读主题</div>'; return; }
+      el.innerHTML = topics.map((t) => `
+        <a class="item club-card" href="./co-read.html?topic=${encodeURIComponent(t.id)}">
+          <div class="meta"><span class="badge">📚 共读</span><span>${esc(t.period)}</span></div>
+          <h3>${esc(t.title)}</h3>
+          <div class="summary">${esc(t.lead)}</div>
+          <div class="tags"><span class="tag">${(t.questions||[]).length} 个共读问题</span><span class="tag">${(t.reads||[]).length} 篇精选阅读</span></div>
+        </a>`).join('');
+    }
+
+    function renderDetail(id) {
+      const t = Object.values(ITEM_MAP).length ? null : null; // placeholder
+      // 从 manifest 再取一次 topic（ITEM_MAP 不含 topic）
+      fetch('./manifest.json').then((r) => r.json()).then((m) => {
+        const topic = (m.club.topics || []).find((x) => x.id === id);
+        if (!topic) { document.getElementById('detail').innerHTML = '<div class="empty">未找到该共读主题</div>'; return; }
+        const checked = CoRead.isChecked(id);
+        const days = CoRead.checkinDays(id);
+        const notes = CoRead.getNotes(id);
+        document.getElementById('list').style.display = 'none';
+        const d = document.getElementById('detail');
+        d.style.display = 'block';
+        d.innerHTML = `
+          <a class="back" href="./co-read.html">← 返回全部共读</a>
+          <div class="club-detail">
+            <div class="meta"><span class="badge">📚 共读</span><span>${esc(topic.period)}</span></div>
+            <h1 style="font-family:'Noto Serif SC',serif;font-size:30px;margin:6px 0 12px;">${esc(topic.title)}</h1>
+            <p class="section-sub">${esc(topic.lead)}</p>
+            <div class="club-actions">
+              <button class="btn" id="checkin">${checked ? '✓ 今日已打卡' : '☀️ 今日打卡'}</button>
+              <span class="notice">已累计打卡 ${days} 天</span>
+              <button class="btn ghost" onclick="CoRead.exportAll()">导出我的共读档案</button>
+            </div>
+            <h2 class="section-title" style="font-size:22px;margin-top:32px;">共读问题</h2>
+            <ol class="qlist">${(topic.questions||[]).map((q)=>'<li>'+esc(q)+'</li>').join('')}</ol>
+            <h2 class="section-title" style="font-size:22px;margin-top:24px;">精选阅读</h2>
+            <div class="list" style="margin-top:8px;">${(topic.reads||[]).map(readCard).join('')}</div>
+            <h2 class="section-title" style="font-size:22px;margin-top:24px;">我的共读笔记</h2>
+            <textarea id="clubNote" placeholder="围绕本期主题，写一句你的想法……"></textarea>
+            <div class="notes-actions">
+              <button class="btn" onclick="saveClubNote('${esc(id)}')">保存笔记</button>
+            </div>
+            <div class="note-list" id="noteList">${notes.map((n)=>'<div class="note-item"><div>'+esc(n.text)+'</div><span class="notice">'+new Date(n.ts).toLocaleString('zh-CN')+'</span></div>').join('')}</div>
+          </div>`;
+        document.getElementById('checkin').addEventListener('click', () => {
+          const on = CoRead.toggleCheckin(id);
+          document.getElementById('checkin').textContent = on ? '✓ 今日已打卡' : '☀️ 今日打卡';
+          document.getElementById('checkin').classList.toggle('ghost', !on);
+          renderDetail(id);
+        });
+      });
+    }
+    window.saveClubNote = function (id) {
+      const txt = document.getElementById('clubNote').value.trim();
+      if (!txt) { toast('笔记为空'); return; }
+      CoRead.addNote(id, txt);
+      const notes = CoRead.getNotes(id);
+      document.getElementById('noteList').innerHTML = notes.map((n)=>'<div class="note-item"><div>'+esc(n.text)+'</div><span class="notice">'+new Date(n.ts).toLocaleString('zh-CN')+'</span></div>').join('');
+      document.getElementById('clubNote').value = '';
+      toast('已保存共读笔记');
+    };
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>搜索 · 参考答案阅览室</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <nav class="nav"><div class="nav-inner">
+    <a class="brand" href="./">参考答案阅览室<small>深度阅读社区</small></a>
+    <div class="nav-links">
+      <a href="./browse.html">浏览</a>
+      <a href="./co-read.html">共读</a>
+      <a href="./studio.html">编辑台</a>
+    </div>
+  </div></nav>
+
+  <main class="container">
+    <h1 class="section-title" style="margin-top:32px;">搜索结果</h1>
+    <p class="section-sub" id="qhint"></p>
+    <div class="list" id="list"><div class="empty">加载中…</div></div>
+  </main>
+
+  <footer>参考答案阅览室 · 深度阅读社区</footer>
+
+  <script src="./js/app.js"></script>
+  <script>
+    const q = new URLSearchParams(location.search).get('q') || '';
+    document.getElementById('qhint').textContent = '关键词：' + (q || '（空）');
+    document.title = '搜索：' + q + ' · 参考答案阅览室';
+    (async () => {
+      if (!q) { document.getElementById('list').innerHTML = '<div class="empty">请输入搜索词</div>'; return; }
+      const { results } = await API.search(q);
+      const el = document.getElementById('list');
+      if (!results.length) { el.innerHTML = '<div class="empty">没有匹配「' + esc(q) + '」的内容</div>'; return; }
+      el.innerHTML = results.map((it) => `
+        <a class="item" href="./read.html?id=${encodeURIComponent(it.id)}">
+          <div class="meta"><span class="badge">${it.icon} ${esc(it.categoryName)}</span><span>${esc(it.date)}</span></div>
+          <h3>${esc(it.title)}</h3>
+          <div class="summary">${esc(it.summary)}</div>
+          <div class="tags">${(it.tags||[]).map((t)=>'<span class="tag">'+esc(t)+'</span>').join('')}</div>
+        </a>`).join('');
+    })();
+  </script>
+</body>
+</html>

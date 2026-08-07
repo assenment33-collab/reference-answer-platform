@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>参考答案阅览室 · 深度阅读社区</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <nav class="nav"><div class="nav-inner">
+    <a class="brand" href="./">参考答案阅览室<small>深度阅读社区</small></a>
+    <div class="nav-links">
+      <a href="./browse.html">浏览</a>
+      <a href="./co-read.html">共读</a>
+      <a href="./studio.html">编辑台</a>
+    </div>
+  </div></nav>
+
+  <header class="hero">
+    <p class="eyebrow">反碎片化阅读</p>
+    <h1 class="font-serif-sc">在喧嚣里，留一处深度</h1>
+    <p>每天一篇深度长文，每周一期泛读周刊，每月一期主题月刊。有益的、一手的、经典的——和同路人一起，搭建可复利的知识体系。</p>
+    <form class="search-bar" onsubmit="return goSearch(event)">
+      <input id="q" type="text" placeholder="搜索所有品类：荣格、决策、深度工作……" autocomplete="off">
+      <button type="submit">搜索</button>
+    </form>
+  </header>
+
+  <main class="container">
+    <!-- 兴趣选择 + 个性化推荐 -->
+    <div class="interest-bar">
+      <div class="interest-head">
+        <span>🎯 选择你感兴趣的方向，阅览室会据此为你排序推荐</span>
+        <button class="link-btn" onclick="clearInterests()">重置</button>
+      </div>
+      <div class="chips" id="interestChips"><span class="empty">加载中…</span></div>
+    </div>
+
+    <h2 class="section-title">为你推荐</h2>
+    <p class="section-sub" id="recommendHint">最新上架的内容</p>
+    <div class="list" id="recommend"><div class="empty">加载中…</div></div>
+
+    <h2 class="section-title">全部品类</h2>
+    <p class="section-sub">点击进入，浏览与搜索已有内容</p>
+    <div class="cat-grid" id="cats"><div class="empty">加载中…</div></div>
+
+    <h2 class="section-title">本周共读</h2>
+    <p class="section-sub">每周一个主题，与同路人把「读过」变成「想通」 · <a href="./co-read.html">查看全部共读 →</a></p>
+    <div id="clubWeek"><div class="empty">加载中…</div></div>
+  </main>
+
+  <footer>参考答案阅览室 · 深度阅读社区 · 由 Agent 策展驱动</footer>
+
+  <script src="./js/app.js"></script>
+  <script>
+    function goSearch(e) {
+      e.preventDefault();
+      const q = document.getElementById('q').value.trim();
+      if (q) location.href = './search.html?q=' + encodeURIComponent(q);
+      return false;
+    }
+    function itemCard(it) {
+      return `<a class="item" href="./read.html?id=${encodeURIComponent(it.id)}">
+        <div class="meta"><span class="badge">${it.icon} ${esc(it.categoryName)}</span><span>${esc(it.date)}</span>${it.author ? '<span>'+esc(it.author)+'</span>' : ''}</div>
+        <h3>${esc(it.title)}</h3>
+        <div class="summary">${esc(it.summary)}</div>
+        <div class="tags">${(it.tags||[]).map((t)=>'<span class="tag">'+esc(t)+'</span>').join('')}</div>
+      </a>`;
+    }
+    async function renderChips() {
+      const tax = await Personalization.getTaxonomy();
+      const sel = await Personalization.getInterests();
+      document.getElementById('interestChips').innerHTML = tax.map((t) => `
+        <button class="chip ${sel.includes(t.key) ? 'on' : ''}" onclick="toggleInterest('${esc(t.key)}')">
+          ${t.icon} ${esc(t.key)}
+        </button>`).join('');
+    }
+    async function toggleInterest(key) {
+      const sel = await Personalization.getInterests();
+      const next = sel.includes(key) ? sel.filter((k) => k !== key) : [...sel, key];
+      await Personalization.setInterests(next);
+      await renderChips();
+      await renderRecommend();
+    }
+    async function clearInterests() {
+      await Personalization.setInterests([]);
+      await renderChips();
+      await renderRecommend();
+    }
+    window.toggleInterest = toggleInterest;
+    window.clearInterests = clearInterests;
+
+    async function renderRecommend() {
+      const interests = await Personalization.getInterests();
+      const m = await API.meta();
+      // 取全部内容用于排序
+      const all = await API.list({ limit: 200 });
+      const recs = await Personalization.recommend(all.items, 6);
+      document.getElementById('recommendHint').textContent = interests.length
+        ? `基于你选择的 ${interests.length} 个方向排序`
+        : '选好兴趣后，这里会按你的方向排序';
+      document.getElementById('recommend').innerHTML = recs.length
+        ? recs.map(itemCard).join('')
+        : '<div class="empty">暂无内容</div>';
+    }
+
+    async function renderClubWeek() {
+      const m = await loadManifest();
+      const club = m.club || { topics: [] };
+      if (!club.topics.length) { document.getElementById('clubWeek').innerHTML = ''; return; }
+      const t = club.topics[0];
+      document.getElementById('clubWeek').innerHTML = `
+        <a class="item club-card" href="./co-read.html?topic=${encodeURIComponent(t.id)}">
+          <div class="meta"><span class="badge">📚 本周共读</span><span>${esc(t.period)}</span></div>
+          <h3>${esc(t.title)}</h3>
+          <div class="summary">${esc(t.lead)}</div>
+          <div class="tags"><span class="tag">${(t.questions||[]).length} 个共读问题</span><span class="tag">${(t.reads||[]).length} 篇精选阅读</span></div>
+        </a>`;
+    }
+
+    async function init() {
+      const meta = await API.meta();
+      document.getElementById('cats').innerHTML = meta.categories.map((c) => `
+        <a class="cat-card" href="./browse.html?cat=${c.key}">
+          <div class="ico">${c.icon}</div>
+          <div class="name">${esc(c.name)}</div>
+          <div class="count">${c.count} 篇</div>
+        </a>`).join('');
+      await renderChips();
+      await renderRecommend();
+      await renderClubWeek();
+    }
+    init();
+  </script>
+</body>
+</html>

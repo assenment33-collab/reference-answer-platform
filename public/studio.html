@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>编辑台 · 参考答案阅览室</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <nav class="nav"><div class="nav-inner">
+    <a class="brand" href="./">参考答案阅览室<small>深度阅读社区</small></a>
+    <div class="nav-links">
+      <a href="./browse.html">浏览</a>
+      <a href="./co-read.html">共读</a>
+      <a href="./studio.html">编辑台</a>
+    </div>
+  </div></nav>
+
+  <main class="container">
+    <h1 class="section-title" style="margin-top:32px;">编辑台 · AI 初稿 + 编辑把关</h1>
+    <p class="section-sub">由「参考答案阅览室」Skill 驱动的 agent 策展工作流：生成初稿 → 你把关、补一手来源 → 发布入库</p>
+
+    <div class="studio-grid">
+      <div>
+        <div class="field">
+          <label>品类</label>
+          <select id="cat"></select>
+        </div>
+        <div class="field">
+          <label>主题</label>
+          <input id="topic" type="text" placeholder="如：如何与焦虑共处" />
+        </div>
+        <div class="field">
+          <button class="btn" id="gen" style="width:100%;">⚡ 生成 AI 初稿</button>
+          <p class="notice" id="modeHint">未配置 LLM_API_KEY 时为演示初稿，接入后自动转为真实生成。</p>
+        </div>
+        <div class="field">
+          <button class="btn" id="pub">✓ 发布入库</button>
+          <button class="btn ghost" id="clear" style="margin-left:8px;">清空</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="field">
+          <label>编辑（Markdown，==重点== 高亮，&gt; 概念卡）</label>
+          <textarea id="editor" placeholder="点击左侧「生成 AI 初稿」后在此编辑把关……"></textarea>
+        </div>
+        <div class="field">
+          <label>预览</label>
+          <div class="preview markdown" id="preview"><span style="color:var(--muted)">编辑区有内容时实时预览</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>参考答案阅览室 · 深度阅读社区</footer>
+
+  <script src="./js/app.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const CAT = { daily:'信息食谱', weekly:'参考周刊', monthly:'参考月刊', topics:'领域专题', people:'前路人', books:'参考书', calendar:'每日日历' };
+    const ICON = { daily:'📖', weekly:'📰', monthly:'🗓️', topics:'📂', people:'🧭', books:'📚', calendar:'📅' };
+
+    // 前端演示初稿（静态模式 / 无后端时回退）
+    function frontDemo(category, topic) {
+      const name = CAT[category] || '内容';
+      const icon = ICON[category] || '✍️';
+      const date = new Date().toISOString().slice(0, 10);
+      let body = '';
+      switch (category) {
+        case 'daily': body = '核心论点：（一句话概括）\n\n> ==高亮重点句 1==\n> ==高亮重点句 2==\n\n> 概念卡：术语 = 一句解释\n\n阅读理由：（为什么值得读）'; break;
+        case 'weekly': body = '卷首语：（当周主题一句话）\n\n1. 文章标题 —— 作者 / 分类\n   摘要：（2-3句）\n2. 文章标题 —— 作者 / 分类\n   摘要：（2-3句）'; break;
+        case 'monthly': body = '主题导语：（……）\n\n核心概念：\n- 概念A：一句解释\n- 概念B：一句解释\n\n深度文章/书单/前路人：\n- （3-5项）'; break;
+        case 'topics': body = '导语：（价值锚点）\n\n1. 条目 —— 分类\n   一句话摘要：（……）\n2. 条目 —— 分类\n   一句话摘要：（……）'; break;
+        case 'people': body = '身份标签：（1-2个）\n\n简介：（2-3句）\n\n核心观点：\n- （观点1）\n- （观点2）\n\n值得思考的问题：\n- （问题1）\n\n代表作/语录：\n- （……）'; break;
+        case 'books': body = '一句话推荐：（……）\n\n适合阅读时机：（……）'; break;
+        case 'calendar': body = '名言 —— 出处\n\n宜：（……）　忌：（……）\n\n历史上的今天：（真实史实）'; break;
+        default: body = '（在此撰写内容正文）';
+      }
+      return `---\ntitle: "${topic}"\ndate: "${date}"\nauthor: "编辑部"\ntags: "${topic}"\nsummary: "【${name}】${topic} —— 演示初稿，待编辑把关"\n---\n\n${icon} ${name} · ${topic}\n\n> ⚠️ 静态模式演示初稿（无 Node 后端）。编辑把关后，请在本地运行 node server.js 再发布。\n\n${body}\n\n---\n\n编辑笔记：（记录把关修改与来源核验）\n`;
+    }
+
+    (async () => {
+      const meta = await API.meta();
+      $('cat').innerHTML = meta.categories.map((c) => `<option value="${c.key}">${c.icon} ${c.name}</option>`).join('');
+    })();
+
+    $('editor').addEventListener('input', () => { $('preview').innerHTML = renderMarkdown($('editor').value); });
+
+    $('gen').addEventListener('click', async () => {
+      const topic = $('topic').value.trim();
+      if (!topic) { toast('请先填写主题'); return; }
+      $('gen').disabled = true; $('gen').textContent = '生成中…';
+      try {
+        const res = await API.curate({ category: $('cat').value, topic });
+        $('editor').value = res.draft || '';
+        $('modeHint').textContent = res.mode === 'llm' ? '已用真实 LLM 生成。' : '当前为演示初稿，接入 LLM_API_KEY 后自动转真实生成。';
+      } catch (e) {
+        $('editor').value = frontDemo($('cat').value, topic);
+        $('modeHint').textContent = '静态模式演示初稿（无 Node 后端）。发布请本地运行 node server.js。';
+      } finally {
+        $('preview').innerHTML = renderMarkdown($('editor').value);
+        $('gen').disabled = false; $('gen').textContent = '⚡ 生成 AI 初稿';
+        toast('初稿已生成，请编辑把关');
+      }
+    });
+
+    $('pub').addEventListener('click', async () => {
+      const md = $('editor').value.trim();
+      if (!md) { toast('内容为空'); return; }
+      $('pub').disabled = true;
+      try {
+        const res = await API.publish({ category: $('cat').value, markdown: md });
+        if (res.id) { toast('已发布：' + res.id); $('editor').value = ''; $('preview').innerHTML = ''; }
+        else throw new Error(res.error || 'unknown');
+      } catch (e) {
+        toast('发布需本地 Node 后端：node server.js');
+      } finally { $('pub').disabled = false; }
+    });
+
+    $('clear').addEventListener('click', () => { $('editor').value = ''; $('preview').innerHTML = ''; });
+  </script>
+</body>
+</html>

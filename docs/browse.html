@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>浏览 · 参考答案阅览室</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <nav class="nav"><div class="nav-inner">
+    <a class="brand" href="./">参考答案阅览室<small>深度阅读社区</small></a>
+    <div class="nav-links">
+      <a href="./browse.html">浏览</a>
+      <a href="./co-read.html">共读</a>
+      <a href="./studio.html">编辑台</a>
+    </div>
+  </div></nav>
+
+  <main class="container">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <h1 class="section-title" id="title" style="margin-top:32px;">浏览</h1>
+      <input id="filter" type="text" placeholder="在当前品类内筛选…"
+        style="padding:10px 14px;border:1px solid var(--line);border-radius:999px;font-size:14px;min-width:220px;outline:none;">
+    </div>
+    <div class="list" id="list"><div class="empty">加载中…</div></div>
+  </main>
+
+  <footer>参考答案阅览室 · 深度阅读社区</footer>
+
+  <script src="./js/app.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const cat = params.get('cat') || '';
+    let metaMap = {};
+
+    async function loadMeta() {
+      const meta = await API.meta();
+      meta.categories.forEach((c) => (metaMap[c.key] = c));
+      if (cat && metaMap[cat]) {
+        document.getElementById('title').textContent = metaMap[cat].icon + ' ' + metaMap[cat].name;
+        document.title = metaMap[cat].name + ' · 参考答案阅览室';
+      }
+    }
+    async function load(q = '') {
+      const data = await API.list({ category: cat, q, limit: 200 });
+      const el = document.getElementById('list');
+      if (!data.items.length) { el.innerHTML = '<div class="empty">没有匹配的内容</div>'; return; }
+      el.innerHTML = data.items.map((it) => `
+        <a class="item" href="./read.html?id=${encodeURIComponent(it.id)}">
+          <div class="meta"><span class="badge">${metaMap[it.category] ? metaMap[it.category].icon + ' ' + metaMap[it.category].name : ''}</span><span>${esc(it.date)}</span>${it.author ? '<span>'+esc(it.author)+'</span>' : ''}</div>
+          <h3>${esc(it.title)}</h3>
+          <div class="summary">${esc(it.summary)}</div>
+          <div class="tags">${(it.tags||[]).map((t)=>'<span class="tag">'+esc(t)+'</span>').join('')}</div>
+        </a>`).join('');
+    }
+    document.getElementById('filter').addEventListener('input', (e) => load(e.target.value.trim()));
+    (async () => { await loadMeta(); await load(); })();
+  </script>
+</body>
+</html>

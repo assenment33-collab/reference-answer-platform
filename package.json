@@ -1,0 +1,13 @@
+{
+  "name": "reference-answer-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "参考答案阅览室 · 在线阅读平台（含 agent 策展工作流）",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
