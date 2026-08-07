@@ -1,77 +1,84 @@
-# 参考答案阅览室 · 在线阅读平台
+# 参考答案阅览室 · 在线深度阅读产品
 
-基于「参考答案阅览室」产品形态搭建的**在线深度阅读社区**。用户打开网页即可浏览、搜索、阅读所有已有品类内容，并获得个性化推荐与每周共读；编辑可在「编辑台」用 agent 策展工作流（AI 初稿 + 编辑把关）生成并发布内容。
+一个**完整的在线深度阅读产品**（不是 demo、不是 skill 演示）。读者打开网页即可浏览、搜索、阅读全品类内容，并获得个性化推荐与每周共读。
 
-> 这是把「参考答案阅览室」WorkBuddy Skill 升级为**可读、可搜、可推荐的产品**：原 Skill 降级为平台内 agent 的策展能力。
+背后的内容，由**运营者通过 Agent 持续采编**——这是产品的「内容引擎」，面向运营者（产品的主人），不面向读者。你给 Agent 一个主题（可附联网研究简报），它产出符合「参考阅览室」调性的完整文章，发布后前端即时更新、读者立即可读可搜。
 
-## 功能
+> 一句话定位：**前端是给读者的产品，Agent 是给你（运营者）的采编中台。** 持续输入时新信息，产品才有生命力。
 
-- 📖 信息食谱 · 📰 参考周刊 · 🗓️ 参考月刊 · 📂 领域专题 · 🧭 前路人 · 📚 参考书 · 📅 每日日历（共 25 篇种子内容）
-- 🔎 全局搜索（跨所有品类，标题 / 摘要 / 标签 / 正文）
-- 📄 文章阅读（`==高亮==` 黄色高亮、`> 概念卡` 引用块渲染）
-- 🎯 **个性化推荐**：用户选择兴趣方向，首页据此重排推荐（`localStorage`，纯静态可用）
-- 📚 **共读机制**：每周一个主题 + 引导问题 + 精选阅读，用户可在本机打卡、写共读笔记并导出档案（`localStorage`，纯静态可演示）
-- 🤖 编辑台：agent 策展工作流，挂载 `reference-answer-reading-room` Skill（AI 初稿 + 编辑把关）
+## 读者在前端能做什么
 
-## 运行（全功能，含 agent 策展与发布）
+- 📖 信息食谱 · 📰 参考周刊 · 🗓️ 参考月刊 · 📂 领域专题 · 🧭 前路人 · 📚 参考书 · 📅 每日日历（**27 篇完整文章**，持续增加）
+- 🔎 全局搜索（跨所有品类：标题 / 摘要 / 标签 / 正文）
+- 📄 文章阅读（`==高亮==` 黄色重点、`> 概念卡` 概念解释块）
+- 🆕 **最新上架**流：越新的内容越靠前，体现「Agent 持续更新」
+- 🎯 **个性化推荐**：读者选兴趣方向，首页据此重排（localStorage，纯静态可用）
+- 📚 **共读机制**：每周一个主题 + 引导问题 + 精选阅读，本机打卡 / 写笔记 / 导出档案
 
-```bash
-node server.js
-# 浏览器打开 http://localhost:3000
-```
+## 运营者如何用 Agent 持续喂内容
 
-可选环境变量——配置后 agent 生成**真实 LLM 初稿**，否则返回结构化演示初稿：
+`scripts/publish.js` 一条命令走完「生成 → 入库 → 构建 → 推送」闭环：
 
 ```bash
-LLM_API_KEY=sk-xxx LLM_BASE_URL=https://api.openai.com/v1 LLM_MODEL=gpt-4o-mini node server.js
+# 让 Agent 联网采编一篇并发布（配置 LLM_API_KEY 走真实生成；否则生成富骨架供填写）
+node scripts/publish.js --category daily --topic "如何与焦虑共处" --brief "（可粘贴一手研究素材）"
+
+# 或：运营者已写好 Markdown，直接发布
+node scripts/publish.js --file ./drafts/my-article.md --category topics
+
+# 只本地预览、不推送
+node scripts/publish.js --category daily --topic "..." --dry
 ```
 
-支持任意 OpenAI 兼容接口（如 DeepSeek、通义千问、智谱等），只需改 `LLM_BASE_URL` 与 `LLM_MODEL`。
+流程：写入 `content/<品类>/` → 构建 `docs/`（manifest）→ `git` 提交 → 推送 `main` → **GitHub Pages 自动更新**，读者即时可见。
 
-## 静态部署（GitHub Pages / 任意静态托管）
+接入真实 LLM（让初稿真正可用）：在运行环境设置 `LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL`（OpenAI 兼容，支持 DeepSeek、通义、智谱等）。
+
+> 运营者专属后台：`/studio.html`（读者看不到入口，仅页脚一个低调链接）。生成与发布需在本地 `node server.js`。
+
+## 本地全功能运行
 
 ```bash
-node build.js     # 扫描 content/ + data/，生成 public/manifest.json，并复制 public/ → docs/
+node server.js          # http://localhost:3000 （内容 API + 搜索 + agent 接口 + 静态）
 ```
 
-`docs/` 即为可直接部署的静态站点（浏览 / 搜索 / 阅读 / 个性化 / 共读均可离线运行）。
+## 静态部署（GitHub Pages / 任意托管）
 
-### 部署到 GitHub Pages（project page）
+```bash
+node build.js           # 扫描 content/ + data/ → 生成 docs/manifest.json → 复制 public/ → docs/
+```
 
-1. 推送本仓库到 `assenment33-collab/reference-answer-platform`
-2. 仓库 **Settings → Pages → Source**：选 `main` 分支、`/docs` 目录
+`docs/` 即部署目录（浏览 / 搜索 / 阅读 / 个性化 / 共读均可离线运行）。
+
+### 部署到 GitHub Pages
+
+1. 推送到 `assenment33-collab/reference-answer-platform`
+2. **Settings → Pages → Source**：`main` 分支、`/docs` 目录
 3. 访问 `https://assenment33-collab.github.io/reference-answer-platform/`
 
-> 前端全部使用相对路径（`./`），因此无论部署在根路径还是子目录都能正常工作。
+> 前端全部使用相对路径（`./`），根路径或子目录部署均正常。
 
 ## 目录结构
 
 ```
 reference-answer-platform/
-├── server.js                              # 零依赖 Node 服务（内容 API + 搜索 + agent 接口 + 静态）
-├── build.js                              # 构建 manifest.json 并复制 public/ → docs/
+├── server.js                  # 零依赖 Node 服务（内容 API + 搜索 + agent 接口 + 静态）
+├── build.js                  # 构建 manifest.json 并复制 public/ → docs/
+├── scripts/
+│   └── publish.js            # 运营者发布 CLI（生成→入库→构建→提交→推送 闭环）
 ├── agent/
-│   ├── index.js                          # agent 策展模块（LLM / 演示双模式）
+│   ├── index.js              # 运营者采编 Agent（LLM / 富骨架 双模式）
 │   └── skills/
 │       └── reference-answer-reading-room/
-│           └── SKILL.md                  # 挂载的 Skill（含 AI 初稿 + 编辑把关工作流）
-├── content/                              # 7 个品类的 Markdown 内容源（可搜索/阅读的"已有品类信息"）
-│   ├── daily/ weekly/ monthly/ topics/ people/ books/ calendar/
+│           └── SKILL.md      # 挂载的 Skill（含完整文章结构与采编工作流）
+├── content/                  # 7 品类 Markdown 内容源（即"已有品类信息"）
+│   └── daily/ weekly/ monthly/ topics/ people/ books/ calendar/
 ├── data/
-│   └── reading-club.json                 # 运营预设的共读主题
-├── public/                               # 前端源 + 构建产物 manifest.json
-│   ├── index.html browse.html read.html search.html studio.html co-read.html
-│   ├── css/style.css  js/app.js
-│   └── manifest.json                     # build.js 生成（含正文、共读主题、兴趣标签体系）
-└── docs/                                 # build.js 生成，GitHub Pages 部署目录
+│   └── reading-club.json     # 共读主题配置
+├── public/                   # 前端源（index/browse/read/search/co-read/studio）
+│   └── manifest.json         # build.js 生成（含正文、共读主题、兴趣标签体系）
+└── docs/                     # build.js 生成，GitHub Pages 部署目录
 ```
-
-## 内容生产流程（agent 策展）
-
-1. 编辑在「编辑台」选择品类 + 主题 → 调 agent 生成初稿
-2. agent 使用 `reference-answer-reading-room` Skill 的提示词，产出带 frontmatter 的结构化 Markdown（含 `==高亮==` 与 `> 概念卡`）
-3. 编辑把关：补一手来源、核验事实、调语气
-4. 发布入库 → 重建索引 → 用户即可搜索与阅读
 
 ## License
 
